@@ -14,7 +14,7 @@ public class ReversiGame {
     private Piece currentPlayer;
     private SearchAlgorithm ai;
 
-    private Piece aiPlayer = Piece.WHITE;
+    private Piece aiPlayer = Piece.BLACK;
 
     public ReversiGame() {
         this.board = new Board();

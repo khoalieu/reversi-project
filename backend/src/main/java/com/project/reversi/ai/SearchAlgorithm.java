@@ -9,3 +9,4 @@ public interface SearchAlgorithm {
     Move findBestMove(Board board, Piece player);
 
 }
+//alfafaf

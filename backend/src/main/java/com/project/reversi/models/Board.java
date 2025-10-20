@@ -33,10 +33,10 @@ public class Board {
                 grid[i][j] = Piece.EMPTY;
             }
         }
-        grid[3][3] = Piece.BLACK;
-        grid[3][4] = Piece.WHITE;
-        grid[4][3] = Piece.WHITE;
-        grid[4][4] = Piece.BLACK;
+        grid[3][3] = Piece.WHITE;
+        grid[3][4] = Piece.BLACK;
+        grid[4][3] = Piece.BLACK;
+        grid[4][4] = Piece.WHITE;
     }
     public Piece getPiece(int row, int col) {
         return grid[row][col];

@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 setTimeout(() => {
                     processAiTurn();
-                }, 1500);
+                }, 4500);
             }
         }
     }
@@ -183,6 +183,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             });
             updateInfoText(newState);
+            if(!newState.gameOver && newState.isAiTurn) {
+                setTimeout(() => processAiTurn(), 1000);
+            }
         }
     });
 
@@ -210,6 +213,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             });
             updateInfoText(newState);
+            if (!newState.gameOver && newState.isAiTurn) {
+                setTimeout(() => processAiTurn(), 1000);
+            }
         }
+
     });
 });
