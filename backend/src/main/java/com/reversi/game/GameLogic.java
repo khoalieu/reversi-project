@@ -1,1 +1,0 @@
-// Luật chơi Reversi (OOP)
