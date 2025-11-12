@@ -1,3 +1,5 @@
+package com.project.reversi.models;
+
 public class  Move {
     private final int col;
     private final int row;
