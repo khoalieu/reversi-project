@@ -41,6 +41,7 @@ public class Board {
     public Piece getPiece(int row, int col) {
         return grid[row][col];
     }
+    //kiem tra buoc di hop le
     public boolean isValidMove(Move move, Piece player) {
         int r = move.getRow();
         int c = move.getCol();
@@ -56,7 +57,7 @@ public class Board {
         }
         return false;
     }
-
+    //kiem tra co the lat quan trong huong nao do khong
     private boolean canFlipInDirection(int startR, int startC, int dr, int dc, Piece player) {
         Piece opponent = (player == Piece.BLACK) ? Piece.WHITE : Piece.BLACK;
 
@@ -78,6 +79,7 @@ public class Board {
         }
         return false;
     }
+    //lay danh sach cac nuoc di hop le
     public ArrayList<Move> getValidMoves(Piece player) {
         ArrayList<Move> validMoves = new ArrayList<>();
         for (int r = 0; r < SIZE; r++) {
@@ -90,6 +92,7 @@ public class Board {
         }
         return validMoves;
     }
+    //thuc hien nuoc di
     public void makeMove(Move move, Piece player) {
         int r = move.getRow();
         int c = move.getCol();
@@ -103,7 +106,7 @@ public class Board {
             }
         }
     }
-    
+    //lat cac quan co trong huong do
     private void flipPiecesInDirection(int startR, int startC, int dr, int dc, Piece player) {
         Piece opponent = (player == Piece.BLACK) ? Piece.WHITE : Piece.BLACK;
         
@@ -116,6 +119,7 @@ public class Board {
             c += dc;
         }
     }
+    //dieu kien ket thuc game
     public boolean isGameOver() {
         return getValidMoves(Piece.BLACK).isEmpty() && getValidMoves(Piece.WHITE).isEmpty();
     }
@@ -132,6 +136,7 @@ public class Board {
         }
         return copy;
     }
+    //dem so quan co cua tung loai
     public int countPieces(Piece pieceType) {
         int count = 0;
         for (int i = 0; i < SIZE; i++) {
