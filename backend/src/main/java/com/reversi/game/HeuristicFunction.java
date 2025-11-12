@@ -1,1 +1,0 @@
-// Hàm đánh giá heuristic
