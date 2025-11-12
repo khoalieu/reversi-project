@@ -84,7 +84,7 @@ public class Board {
         ArrayList<Move> validMoves = new ArrayList<>();
         for (int r = 0; r < SIZE; r++) {
             for (int c = 0; c < SIZE; c++) {
-                Move move = new Move(c, r);
+                Move move = new Move(r, c);
                 if (isValidMove(move, player)) {
                     validMoves.add(move);
                 }

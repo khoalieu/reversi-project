@@ -1,14 +1,16 @@
 package com.project.reversi.models;
 
 public class  Move {
-    private final int col;
-    private final int row;
+    private int col;
+    private int row;
 
     public Move(int col, int row) {
         this.col = col;
         this.row = row;
     }
-
+    public Move() {
+        // Constructor rỗng bắt buộc cho Jackson
+    }
     public int getCol() {
         return col;
     }
