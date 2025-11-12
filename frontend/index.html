@@ -1,1 +1,44 @@
 <!-- Giao diện người dùng Web -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reversi Game</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <div id="game-container">
+        <h1>Reversi Game</h1>
+        <div id="game-info">
+            <div id="score">
+                <div class="player-score">
+                    <span class="piece black"></span>
+                    <span id="black-score">2</span>
+                </div>
+                <div class="player-score">
+                    <span class="piece white"></span>
+                    <span id="white-score">2</span>
+                </div>
+            </div>
+            <div id="current-player">
+                <span>Current Player: </span>
+                <span id="player-indicator" class="piece black"></span>
+            </div>
+        </div>
+        <div id="board"></div>
+        <div id="controls">
+            <button id="new-game-btn">New Game</button>
+            <button id="ai-move-btn">AI Move</button>
+            <button id="hint-btn">Show Hints</button>
+        </div>
+        <div id="status">Welcome to Reversi! Black plays first.</div>
+        <div id="game-over" class="hidden">
+            <div id="winner-message"></div>
+            <div id="final-score"></div>
+        </div>
+    </div>
+    <script src="./js/api.js"></script>
+    <script src="./js/main.js"></script>
+</body>
+</html>
