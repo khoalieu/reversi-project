@@ -11,15 +11,12 @@ public class AlphaBetaPruning implements SearchAlgorithm {
 
     public AlphaBetaPruning() {
         this.evaluator = new HeuristicEvaluator();
-        this.maxDepth = 6; // Ví dụ độ sâu mặc định
+        this.maxDepth = 6;
     }
+
 
     @Override
     public Move findBestMove(Board board, Piece player) {
-        // TODO: Gọi hàm đệ quy minimax với alpha-beta
         return null;
     }
-
-    // Hàm đệ quy (Helper method)
-    // private int alphaBeta(...) { ... }
 }

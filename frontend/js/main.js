@@ -1,5 +1,3 @@
-// js/main.js
-
 document.addEventListener("DOMContentLoaded", () => {
     const boardElement = document.getElementById("board");
     const blackScoreElement = document.getElementById("black-score");
@@ -8,112 +6,136 @@ document.addEventListener("DOMContentLoaded", () => {
     const statusElement = document.getElementById("status");
     const newGameBtn = document.getElementById("new-game-btn");
 
-    // Biến lưu trạng thái game cục bộ để so sánh thay đổi (cho animation)
+    // Biến lưu trạng thái bàn cờ CŨ để so sánh
     let currentBoardState = [];
 
     // Khởi tạo bàn cờ rỗng
     function initBoard() {
-        boardElement.innerHTML = ""; // Xóa bàn cờ cũ
+        boardElement.innerHTML = "";
+        currentBoardState = []; // Reset trạng thái
         for (let i = 0; i < 8; i++) {
+            let rowArr = [];
             for (let j = 0; j < 8; j++) {
                 const cell = document.createElement("div");
                 cell.classList.add("cell");
                 cell.dataset.row = i;
                 cell.dataset.col = j;
-
-                // Sự kiện click vào ô
                 cell.addEventListener("click", () => handleCellClick(i, j));
-
                 boardElement.appendChild(cell);
+                rowArr.push("EMPTY");
             }
+            currentBoardState.push(rowArr);
         }
     }
 
-    // Xử lý khi người chơi click vào ô
+    // Xử lý khi người chơi click
     async function handleCellClick(row, col) {
-        // Gọi API gửi nước đi
+        // 1. Giao diện chờ: Thông báo AI đang nghĩ
+        statusElement.textContent = "AI is thinking...";
+        statusElement.style.color = "#e67e22"; // Đổi màu chữ cho nổi bật
+        boardElement.classList.add("disabled"); // Khóa bàn cờ lại
+
+        // 2. Gọi API (Backend xử lý cực nhanh)
+        // Lưu ý: Kết quả trả về đã bao gồm cả nước đi của bạn VÀ của AI
         const newState = await API.makeMove(row, col);
+
+        // 3. Tạo độ trễ giả (0.7 giây) để người dùng cảm thấy AI đang tính
         if (newState) {
-            updateUI(newState);
+            setTimeout(() => {
+                updateUI(newState);
+                boardElement.classList.remove("disabled"); // Mở khóa bàn cờ
+                statusElement.style.color = "#2c3e50"; // Trả lại màu chữ
+            }, 700); // 700ms = 0.7 giây
+        } else {
+            // Nếu lỗi thì mở khóa ngay
+            boardElement.classList.remove("disabled");
         }
     }
 
-    // Cập nhật giao diện dựa trên dữ liệu từ Server
     function updateUI(gameState) {
         if (!gameState) return;
 
-        // 1. Cập nhật bàn cờ và quân cờ
-        const grid = gameState.board; // Giả sử server trả về { board: [[...]], ... }
+        const newGrid = gameState.board;
         const cells = document.querySelectorAll(".cell");
 
         cells.forEach(cell => {
             const r = parseInt(cell.dataset.row);
             const c = parseInt(cell.dataset.col);
-            const pieceType = grid[r][c]; // "BLACK", "WHITE", "EMPTY"
 
-            // Xóa quân cờ cũ (nếu có)
-            cell.innerHTML = "";
+            const oldType = currentBoardState[r] ? currentBoardState[r][c] : "EMPTY";
+            const newType = newGrid[r][c];
 
-            if (pieceType !== "EMPTY") {
+            // Chỉ vẽ lại nếu có sự thay đổi hoặc ô đó đang trống
+            if (newType !== "EMPTY") {
+                // Xóa quân cũ đi để vẽ lại (để kích hoạt animation)
+                cell.innerHTML = "";
+
                 const piece = document.createElement("div");
                 piece.classList.add("piece");
-                piece.classList.add(pieceType.toLowerCase()); // "black" hoặc "white"
+                piece.classList.add(newType.toLowerCase()); // "black" hoặc "white"
 
-                // Hiệu ứng đặt quân mới (nếu ô này trước đó trống)
-                if (!currentBoardState[r] || currentBoardState[r][c] === "EMPTY") {
+                // LOGIC QUAN TRỌNG: Quyết định hiệu ứng
+                if (oldType === "EMPTY") {
+                    // 1. Ô này trước đây trống -> Đây là nước đi mới đặt xuống
                     piece.classList.add("placing");
+                } else if (oldType !== newType) {
+                    // 2. Ô này trước đây khác màu -> Đây là quân bị lật (Flipping)
+                    piece.classList.add("flipping");
                 }
 
                 cell.appendChild(piece);
+            } else {
+                cell.innerHTML = ""; // Nếu là EMPTY thì xóa sạch
             }
         });
 
-        // Lưu lại trạng thái để so sánh lần sau
-        currentBoardState = JSON.parse(JSON.stringify(grid));
+        // Cập nhật trạng thái cũ thành trạng thái mới cho lần sau
+        currentBoardState = JSON.parse(JSON.stringify(newGrid));
 
-        // 2. Cập nhật điểm số
-        // Giả sử server trả về { scores: { BLACK: 2, WHITE: 2 }, ... }
+        // Cập nhật điểm số & Lượt đi
         if (gameState.scores) {
             blackScoreElement.textContent = gameState.scores.BLACK;
             whiteScoreElement.textContent = gameState.scores.WHITE;
         }
 
-        // 3. Cập nhật lượt đi
-        // Giả sử server trả về { currentPlayer: "WHITE", ... }
-        const currentPlayer = gameState.currentPlayer; // "BLACK" hoặc "WHITE"
+        const currentPlayer = gameState.currentPlayer;
         playerIndicator.className = `piece ${currentPlayer.toLowerCase()}`;
         statusElement.textContent = `${currentPlayer === "BLACK" ? "Black" : "White"}'s Turn`;
 
-        // 4. Hiển thị gợi ý nước đi (nếu có)
-        // Xóa gợi ý cũ
+        // Vẽ gợi ý (Hints)
         cells.forEach(c => c.classList.remove("valid-move"));
-
         if (gameState.validMoves) {
             gameState.validMoves.forEach(move => {
-                // Tìm ô tương ứng và thêm class valid-move
-                // move.row, move.col
                 const index = move.row * 8 + move.col;
-                if (cells[index]) {
-                    cells[index].classList.add("valid-move");
-                }
+                if (cells[index]) cells[index].classList.add("valid-move");
             });
         }
 
-        // 5. Kiểm tra Game Over
+        // Xử lý Game Over
         if (gameState.gameOver) {
-            statusElement.textContent = `Game Over! Winner: ${gameState.winner}`;
-            // Bạn có thể hiện popup #game-over ở đây
-            // ...
+            setTimeout(() => {
+                // Hiện popup thắng thua (bạn có thể bỏ comment nếu muốn hiện popup)
+                // alert(`Game Over! Winner: ${gameState.winner}`);
+                statusElement.textContent = `Game Over! Winner: ${gameState.winner}`;
+            }, 500);
         }
     }
 
-    // Nút New Game
     newGameBtn.addEventListener("click", async () => {
+        statusElement.textContent = "Starting new game...";
         const newState = await API.newGame();
+        // Reset biến trạng thái cục bộ về rỗng để animation hoạt động đúng
+        for(let i=0; i<8; i++) for(let j=0; j<8; j++) currentBoardState[i][j] = "EMPTY";
         updateUI(newState);
     });
 
-    // Khởi chạy lần đầu
+    // Khởi chạy
     initBoard();
-    API.getGameState().then(updateUI);
-});// Logic hiển thị, sự kiện click, v.v.
+    API.getGameState().then(newState => {
+        // Lần load đầu tiên không cần animation, cập nhật luôn biến cục bộ
+        if(newState) {
+            currentBoardState = JSON.parse(JSON.stringify(newState.board));
+            updateUI(newState);
+        }
+    });
+});

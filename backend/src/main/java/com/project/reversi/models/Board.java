@@ -14,7 +14,7 @@ public class Board {
         this.grid = new Piece[SIZE][SIZE];
         initializeBoard();
     }
-    
+    //ban co ao danh cho AI sau nay
     public Board(Piece[][] grid) {
         this.grid = new Piece[SIZE][SIZE];
         if (grid != null && grid.length == SIZE && grid[0].length == SIZE) {
