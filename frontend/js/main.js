@@ -102,7 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // 5. Kiểm tra Game Over
         if (gameState.gameOver) {
             statusElement.textContent = `Game Over! Winner: ${gameState.winner}`;
-            // Bạn có thể hiện popup #game-over ở đây
+            // Caó thể hiện popup #game-over ở đây
             // ...
         }
     }
