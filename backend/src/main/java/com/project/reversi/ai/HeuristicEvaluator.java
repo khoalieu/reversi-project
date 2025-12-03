@@ -5,6 +5,12 @@ import com.project.reversi.models.Piece;
 
 public class HeuristicEvaluator {
     public int evaluate(Board board, Piece player) {
-        return 0;
+        Piece opponent = (player == Piece.BLACK) ? Piece.WHITE : Piece.BLACK;
+
+        int myCount = board.countPieces(player);
+
+        int oppCount = board.countPieces(opponent);
+
+        return myCount - oppCount;
     }
 }
