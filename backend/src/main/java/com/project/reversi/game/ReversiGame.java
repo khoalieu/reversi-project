@@ -24,40 +24,22 @@ public class ReversiGame {
         this.ai = new Minimax();
     }
 
-    /**
-     * Phương thức xử lý chính.
-     * Được gọi khi Frontend gửi nước đi của người chơi lên.
-     */
+
     public void play(Move playerMove) {
-        // 1. Xử lý nước đi của người chơi hiện tại (Human Move)
         if (!board.isValidMove(playerMove, currentPlayer)) {
             System.out.println("Nước đi không hợp lệ!");
             return;
         }
 
-        // Thực hiện nước đi của người
         board.makeMove(playerMove, currentPlayer);
-
-        // 2. Vòng lặp xử lý tự động (Auto-Process Loop)
-        // Vòng lặp này sẽ chạy liên tục để xử lý các trường hợp:
-        // - Đổi lượt
-        // - Bỏ lượt (Pass) nếu không có nước đi
-        // - AI tự động đánh
-        // Nó chỉ DỪNG LẠI khi:
-        // - Đến lượt một NGƯỜI CHƠI (Human) và họ CÓ nước đi hợp lệ.
-        // - Hoặc Game Over.
 
         processNextTurns();
     }
 
-    /**
-     * Hàm đệ quy/vòng lặp xử lý các lượt đi tiếp theo
-     */
     private void processNextTurns() {
         boolean processing = true;
 
         while (processing) {
-            // Kiểm tra Game Over trước khi đổi lượt (Tránh kẹt vô tận)
             if (board.isGameOver()) {
                 System.out.println("Game Over!");
                 break;
@@ -99,9 +81,7 @@ public class ReversiGame {
         }
     }
 
-    // Helper: Kiểm tra xem phe hiện tại có phải là AI không
     private boolean isAiTurn(Piece player) {
-        // Nếu aiPlayer là null -> Chế độ 2 người chơi (luôn trả về false)
         return aiPlayer != null && player == aiPlayer;
     }
 
