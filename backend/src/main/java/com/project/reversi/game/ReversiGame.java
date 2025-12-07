@@ -20,7 +20,7 @@ public class ReversiGame {
     public ReversiGame() {
         this.board = new Board();
         this.currentPlayer = Piece.WHITE;
-        this.ai = new Minimax();
+        this.ai = new AlphaBetaPruning();
     }
 
 
