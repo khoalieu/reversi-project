@@ -15,7 +15,6 @@ public class ReversiGame {
     private Piece currentPlayer;
     private SearchAlgorithm ai;
 
-    // Cấu hình: Phe nào là AI? (Để null nếu chơi 2 người)
     private Piece aiPlayer = Piece.BLACK;
 
     public ReversiGame() {
@@ -45,37 +44,21 @@ public class ReversiGame {
                 break;
             }
 
-            // Đổi sang phe tiếp theo
             switchTurn();
 
-            // --- KIỂM TRA: Phe này có nước đi không? ---
             if (board.getValidMoves(currentPlayer).isEmpty()) {
                 System.out.println(currentPlayer + " không có nước đi. Mất lượt (Pass)!");
-
-                // Nếu phe này không đi được, vòng lặp sẽ chạy tiếp (continue)
-                // -> Lại gọi switchTurn() ở đầu vòng lặp -> Trả lượt về cho phe kia.
-                // (Logic này đúng cho cả 2 Người hoặc Người vs Máy)
-
-                // *Check phụ*: Nếu đổi lại mà phe kia cũng tịt ngòi nốt -> Game Over
-                // (Sẽ được bắt ở đầu vòng lặp tiếp theo nhờ hàm board.isGameOver)
                 continue;
             }
 
-            // --- KIỂM TRA: Phe này là AI hay Người? ---
             if (isAiTurn(currentPlayer)) {
-                // *** LƯỢT CỦA AI ***
                 System.out.println("AI (" + currentPlayer + ") đang đi...");
 
                 Move bestMove = ai.findBestMove(board, currentPlayer);
                 if (bestMove != null) {
                     board.makeMove(bestMove, currentPlayer);
                 }
-                // Sau khi AI đánh xong, vòng lặp tiếp tục chạy (continue)
-                // để đổi lượt sang người chơi (hoặc xử lý tiếp nếu người chơi bị cấm)
             } else {
-                // *** LƯỢT CỦA NGƯỜI (HUMAN) ***
-                // Nếu đến lượt người và họ CÓ nước đi (đã check isEmpty ở trên)
-                // -> DỪNG vòng lặp, trả về trạng thái để Frontend chờ user click.
                 processing = false;
             }
         }
