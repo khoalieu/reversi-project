@@ -13,7 +13,7 @@ public class Minimax implements SearchAlgorithm {
 
     public Minimax() {
         this.evaluator = new HeuristicEvaluator();
-        this.maxDepth = 4;
+        this.maxDepth = 5;
     }
 
     @Override
