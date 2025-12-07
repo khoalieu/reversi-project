@@ -25,12 +25,42 @@ public class HeuristicEvaluator {
         int positionScore = evalPosition(board, player);
         int mobilityScore = evalMobility(board, player);
         int frontierScore = evalFrontier(board, player);
-        
-        // Trọng số chiến thuật:
-        // Chiếm góc: 10
-        // 2. Mobility: 5
-        // 3. Frontier: 2
-        return (10 * positionScore) + (5 * mobilityScore) + (2 * frontierScore);
+        int discScore = evalPieceDifference(board, player);
+        int totalPieces = board.countPieces(Piece.BLACK) + board.countPieces(Piece.WHITE);
+        int parityScore = evalParity(board);
+        int wPos, wMob, wFront, wDisc, wParity;
+
+        if (totalPieces <= 20) {
+            // Khai cuộc: Tập trung vị trí & cơ động, hạn chế ăn quân
+            wPos = 10;
+            wMob = 5;
+            wFront = 2;
+            wDisc = -2; // Âm để khuyến khích ít quân ("Evaporation Strategy")
+            wParity = 0;
+        } else if (totalPieces <= 45) {
+            // Trung cuộc: Cân bằng, chú trọng cấu trúc biên
+            wPos = 8;
+            wMob = 5;
+            wFront = 4;
+            wDisc = 2;
+            wParity = 2; // Bắt đầu để ý chẵn lẻ một chút
+
+        } else {
+            // Tàn cuộc: Ăn quân là tất cả
+            wPos = 2;
+            wMob = 1;
+            wFront = 1;
+            wDisc = 20; // Đẩy lên cực cao để AI tham lam nhất có thể
+            wParity = 10;
+
+        }
+
+        // 4. Tổng hợp
+        return (wPos * positionScore)
+                + (wMob * mobilityScore)
+                + (wFront * frontierScore)
+                + (wDisc * discScore)
+                + (wParity * parityScore);
     }
 
     private int evalPosition(Board board, Piece player) {
@@ -88,5 +118,40 @@ public class HeuristicEvaluator {
             return 100 * (oppFrontier - myFrontier) / (myFrontier + oppFrontier);
         }
         return 0;
+    }
+    private int evalPieceDifference(Board board, Piece player) {
+        Piece opponent = (player == Piece.BLACK) ? Piece.WHITE : Piece.BLACK;
+        int myPieces = board.countPieces(player);
+        int oppPieces = board.countPieces(opponent);
+
+        if (myPieces + oppPieces != 0) {
+            return 100 * (myPieces - oppPieces) / (myPieces + oppPieces);
+        }
+        return 0;
+    }
+    // 5. Chiến lược Chẵn Lẻ (Parity Strategy)
+
+    private int evalParity(Board board) {
+        int[][] quadrants = {
+                {0, 0, 3, 3}, // StartRow, StartCol, EndRow, EndCol
+                {0, 4, 3, 7},
+                {4, 0, 7, 3},
+                {4, 4, 7, 7}
+        };
+        int parityBonus = 0;
+        for (int[] q : quadrants) {
+            int emptyCount = 0;
+            for (int r = q[0]; r <= q[2]; r++) {
+                for (int c = q[1]; c <= q[3]; c++) {
+                    if (board.getPiece(r, c) == Piece.EMPTY) {
+                        emptyCount++;
+                    }
+                }
+            }
+            if (emptyCount % 2 != 0) {
+                parityBonus += 1;
+            }
+        }
+        return parityBonus * 25;
     }
 }

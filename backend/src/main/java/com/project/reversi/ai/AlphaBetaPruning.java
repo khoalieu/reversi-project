@@ -13,7 +13,7 @@ public class AlphaBetaPruning implements SearchAlgorithm {
     public AlphaBetaPruning() {
         this.evaluator = new HeuristicEvaluator();
         //thay đổi độ sâu tìm kiếm
-        this.maxDepth = 6; 
+        this.maxDepth = 8;
     }
 
     @Override
