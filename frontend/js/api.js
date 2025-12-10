@@ -47,5 +47,16 @@ const API = {
         } catch (error) {
             console.error("Error starting new game:", error);
         }
+    },
+    async triggerAiMove() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/aiMove`, {
+                method: "POST"
+            });
+            return await response.json();
+        } catch (error) {
+            console.error("Error triggering AI move:", error);
+            return null;
+        }
     }
 };

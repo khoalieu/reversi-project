@@ -1,7 +1,6 @@
 package com.project.reversi.game;
 
 import com.project.reversi.ai.AlphaBetaPruning;
-import com.project.reversi.ai.Minimax;
 import com.project.reversi.ai.SearchAlgorithm;
 import com.project.reversi.models.Board;
 import com.project.reversi.models.Move;
@@ -15,16 +14,23 @@ public class ReversiGame {
     private Piece currentPlayer;
     private SearchAlgorithm ai;
 
-    private Piece aiPlayer = Piece.BLACK;
+    private Piece aiPlayer = Piece.WHITE;
 
     public ReversiGame() {
         this.board = new Board();
-        this.currentPlayer = Piece.WHITE;
+        //cấu hình black đi trước
+        this.currentPlayer = Piece.BLACK;
         this.ai = new AlphaBetaPruning();
     }
 
-
+    // 1. Chỉ xử lý nước đi của người chơi (Human)
     public void play(Move playerMove) {
+        // Nếu hiện tại đang là lượt của AI, từ chối lệnh đánh của người chơi
+        if (isAiTurn(currentPlayer)) {
+            System.out.println("Lỗi: Đây là lượt của AI!");
+            return;
+        }
+
         if (!board.isValidMove(playerMove, currentPlayer)) {
             System.out.println("Nước đi không hợp lệ!");
             return;
@@ -32,34 +38,31 @@ public class ReversiGame {
 
         board.makeMove(playerMove, currentPlayer);
 
-        processNextTurns();
+        switchTurn();
+        checkPassTurn();
+    }
+    public void playAi() {
+        if (board.isGameOver()) return;
+        if (isAiTurn(currentPlayer)) {
+            System.out.println("AI (" + currentPlayer + ") đang đi...");
+            Move bestMove = ai.findBestMove(board, currentPlayer);
+            if (bestMove != null) {
+                board.makeMove(bestMove, currentPlayer);
+            } else {
+                System.out.println("AI không có nước đi hợp lệ.");
+            }
+            switchTurn();
+            checkPassTurn();
+        }
     }
 
-    private void processNextTurns() {
-        boolean processing = true;
-
-        while (processing) {
-            if (board.isGameOver()) {
-                System.out.println("Game Over!");
-                break;
-            }
-
+    private void checkPassTurn() {
+        // Nếu game chưa kết thúc mà người hiện tại không có nước đi -> Mất lượt -> Đổi lại
+        if (!board.isGameOver() && board.getValidMoves(currentPlayer).isEmpty()) {
+            System.out.println(currentPlayer + " không có nước đi. Mất lượt (Pass)!");
             switchTurn();
-
             if (board.getValidMoves(currentPlayer).isEmpty()) {
-                System.out.println(currentPlayer + " không có nước đi. Mất lượt (Pass)!");
-                continue;
-            }
-
-            if (isAiTurn(currentPlayer)) {
-                System.out.println("AI (" + currentPlayer + ") đang đi...");
-
-                Move bestMove = ai.findBestMove(board, currentPlayer);
-                if (bestMove != null) {
-                    board.makeMove(bestMove, currentPlayer);
-                }
-            } else {
-                processing = false;
+                System.out.println("Cả hai đều không có nước đi -> Kết thúc sớm.");
             }
         }
     }
@@ -69,11 +72,7 @@ public class ReversiGame {
     }
 
     private void switchTurn() {
-        if (this.currentPlayer == Piece.BLACK) {
-            this.currentPlayer = Piece.WHITE;
-        } else {
-            this.currentPlayer = Piece.BLACK;
-        }
+        this.currentPlayer = (this.currentPlayer == Piece.BLACK) ? Piece.WHITE : Piece.BLACK;
     }
 
     public Map<String, Object> getGameState() {
@@ -87,6 +86,8 @@ public class ReversiGame {
         state.put("scores", scores);
 
         state.put("validMoves", board.getValidMoves(currentPlayer));
+
+        state.put("isAiTurn", isAiTurn(currentPlayer));
 
         boolean isOver = board.isGameOver();
         state.put("gameOver", isOver);
