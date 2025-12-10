@@ -30,35 +30,52 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     async function handleCellClick(row, col) {
-        // [THÊM] Nếu bàn cờ đang bị khóa (disabled) thì không làm gì cả
         if (boardElement.classList.contains("disabled")) {
             return;
         }
 
         statusElement.textContent = "Processing...";
-        boardElement.classList.add("disabled"); // Khóa bàn cờ ngay lập tức
+        boardElement.classList.add("disabled");
 
         const newState = await API.makeMove(row, col);
 
-        // ... (phần code xử lý sau đó giữ nguyên như câu trả lời trước) ...
         if (newState) {
+            // Cập nhật UI cho nước đi của người chơi
             setTimeout(() => {
-                updateUI(newState); // updateUI sẽ gọi updateInfoText -> ẩn gợi ý AI
+                updateUI(newState);
             }, 300);
 
-            // Logic gọi AI sau 1s (như code cũ)
+            // [SỬA ĐỔI] Thay vì setTimeout gọi 1 lần, ta dùng hàm đệ quy xử lý chuỗi lượt AI
             if (!newState.gameOver && newState.isAiTurn) {
-                setTimeout(async () => {
-                    const aiState = await API.triggerAiMove();
-                    if (aiState) updateUI(aiState);
-                }, 1300); // 300ms vẽ + 1000ms delay suy nghĩ
-            } else {
-                // Nếu không phải lượt AI (ví dụ AI bị Pass, hoặc game over), mở khóa lại
-                boardElement.classList.remove("disabled");
-            }
+                // Gọi hàm xử lý lượt AI (chờ 1.3s để người chơi kịp nhìn nước đi vừa đánh)
+                setTimeout(() => processAiTurn(), 1300);
+            } 
+            // Lưu ý: Không cần 'else' unlock ở đây nữa vì updateUI đã lo việc đó
         } else {
             boardElement.classList.remove("disabled");
             statusElement.textContent = "Invalid move!";
+        }
+    }
+    async function processAiTurn() {
+        // Gọi API để AI đánh
+        const aiState = await API.triggerAiMove();
+
+        if (aiState) {
+            updateUI(aiState);
+
+            // [QUAN TRỌNG] Kiểm tra xem sau khi AI đánh, có vẫn là lượt AI không?
+            // Trường hợp này xảy ra khi người chơi bị Pass (không có nước đi)
+            if (!aiState.gameOver && aiState.isAiTurn) {
+                
+                // Cập nhật thông báo cho người dùng biết họ bị mất lượt
+                statusElement.textContent = "You have no moves! AI plays again...";
+                statusElement.style.color = "#c0392b";
+
+                // Gọi đệ quy để AI đánh tiếp sau 1.5s
+                setTimeout(() => {
+                    processAiTurn();
+                }, 1500);
+            }
         }
     }
 
@@ -112,7 +129,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Hoàn tất cập nhật
             currentBoardState = JSON.parse(JSON.stringify(newGrid));
-            boardElement.classList.remove("disabled");
+
+            // [SỬA LỖI QUAN TRỌNG]
+            // Chỉ mở khóa bàn cờ khi KHÔNG phải lượt AI và game chưa kết thúc.
+            // Nếu là lượt AI, bàn cờ phải tiếp tục bị khóa (class 'disabled')
+            if (!gameState.isAiTurn && !gameState.gameOver) {
+                boardElement.classList.remove("disabled");
+            }
+            
             statusElement.style.color = "#2c3e50";
 
             updateInfoText(gameState);

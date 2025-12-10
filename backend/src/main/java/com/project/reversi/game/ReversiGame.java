@@ -14,21 +14,20 @@ public class ReversiGame {
     private Piece currentPlayer;
     private SearchAlgorithm ai;
 
-    private Piece aiPlayer = Piece.BLACK;
+    private Piece aiPlayer = Piece.WHITE;
 
     public ReversiGame() {
         this.board = new Board();
-        // Cấu hình ai đi trước ở đây. Theo luật Othello, Black đi trước.
+        //cấu hình black đi trước
         this.currentPlayer = Piece.BLACK;
         this.ai = new AlphaBetaPruning();
     }
 
     // 1. Chỉ xử lý nước đi của người chơi (Human)
     public void play(Move playerMove) {
-        // [SỬA LỖI QUAN TRỌNG]
         // Nếu hiện tại đang là lượt của AI, từ chối lệnh đánh của người chơi
         if (isAiTurn(currentPlayer)) {
-            System.out.println("Lỗi: Người chơi cố gắng đánh trong lượt của AI!");
+            System.out.println("Lỗi: Đây là lượt của AI!");
             return;
         }
 
