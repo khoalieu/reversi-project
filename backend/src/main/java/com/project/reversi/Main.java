@@ -33,20 +33,19 @@ public class Main {
         // API 2: Người chơi thực hiện nước đi
         app.post("/makeMove", ctx -> {
             try {
-                // Jackson tự động biến JSON { "row": 2, "col": 3 } thành object Move
                 Move playerMove = ctx.bodyAsClass(Move.class);
-
-                System.out.println("Nhận nước đi: " + playerMove.getRow() + ", " + playerMove.getCol());
-
-                // Gọi logic game xử lý (Kiểm tra, đánh, AI đánh lại...)
-                game.play(playerMove);
-
-                // Trả về trạng thái mới sau khi đánh
+                game.play(playerMove); // Chỉ đánh nước người chơi
                 ctx.json(game.getGameState());
             } catch (Exception e) {
                 e.printStackTrace();
-                ctx.status(400).result("Dữ liệu nước đi không hợp lệ");
+                ctx.status(400).result("Lỗi");
             }
+        });
+
+        // [MỚI] API 4: Yêu cầu AI thực hiện nước đi
+        app.post("/aiMove", ctx -> {
+            game.playAi(); // Gọi hàm xử lý AI
+            ctx.json(game.getGameState()); // Trả về bàn cờ sau khi AI đi
         });
 
         // API 3: Reset game mới

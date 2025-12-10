@@ -30,17 +30,32 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     async function handleCellClick(row, col) {
-        statusElement.textContent = "AI is thinking...";
-        statusElement.style.color = "#e67e22";
-        boardElement.classList.add("disabled");
+        // [THÊM] Nếu bàn cờ đang bị khóa (disabled) thì không làm gì cả
+        if (boardElement.classList.contains("disabled")) {
+            return;
+        }
+
+        statusElement.textContent = "Processing...";
+        boardElement.classList.add("disabled"); // Khóa bàn cờ ngay lập tức
 
         const newState = await API.makeMove(row, col);
 
-        // Chờ 300ms rồi mới bắt đầu vẽ (để người dùng kịp nhận ra mình vừa click)
+        // ... (phần code xử lý sau đó giữ nguyên như câu trả lời trước) ...
         if (newState) {
             setTimeout(() => {
-                updateUI(newState);
+                updateUI(newState); // updateUI sẽ gọi updateInfoText -> ẩn gợi ý AI
             }, 300);
+
+            // Logic gọi AI sau 1s (như code cũ)
+            if (!newState.gameOver && newState.isAiTurn) {
+                setTimeout(async () => {
+                    const aiState = await API.triggerAiMove();
+                    if (aiState) updateUI(aiState);
+                }, 1300); // 300ms vẽ + 1000ms delay suy nghĩ
+            } else {
+                // Nếu không phải lượt AI (ví dụ AI bị Pass, hoặc game over), mở khóa lại
+                boardElement.classList.remove("disabled");
+            }
         } else {
             boardElement.classList.remove("disabled");
             statusElement.textContent = "Invalid move!";
@@ -113,11 +128,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const currentPlayer = gameState.currentPlayer;
         playerIndicator.className = `piece ${currentPlayer.toLowerCase()}`;
-        statusElement.textContent = `${currentPlayer === "BLACK" ? "Black" : "White"}'s Turn`;
 
+        // Cập nhật thông báo trạng thái
+        if (gameState.gameOver) {
+            statusElement.textContent = `Game Over! Winner: ${gameState.winner}`;
+        } else if (gameState.isAiTurn) {
+            statusElement.textContent = "AI is thinking..."; // Thông báo AI đang nghĩ
+            statusElement.style.color = "#e67e22";
+        } else {
+            statusElement.textContent = "Your Turn";
+            statusElement.style.color = "#2c3e50";
+        }
+
+        // Xóa class valid-move cũ
         const cells = document.querySelectorAll(".cell");
         cells.forEach(c => c.classList.remove("valid-move"));
-        if (gameState.validMoves) {
+
+        // [SỬA LỖI HIỂN THỊ]
+        // Chỉ hiển thị gợi ý (chấm vàng) nếu KHÔNG phải lượt AI và game chưa kết thúc
+        if (gameState.validMoves && !gameState.isAiTurn && !gameState.gameOver) {
             gameState.validMoves.forEach(move => {
                 const index = move.row * 8 + move.col;
                 if (cells[index]) cells[index].classList.add("valid-move");
@@ -126,7 +155,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (gameState.gameOver) {
             setTimeout(() => {
-                statusElement.textContent = `Game Over! Winner: ${gameState.winner}`;
                 alert(`Game Over! Winner: ${gameState.winner}`);
             }, 500);
         }
