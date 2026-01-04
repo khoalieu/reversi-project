@@ -12,7 +12,6 @@ public class AlphaBetaPruning implements SearchAlgorithm {
 
     public AlphaBetaPruning() {
         this.evaluator = new HeuristicEvaluator();
-        //thay đổi độ sâu tìm kiếm
         this.maxDepth = 6;
     }
 
@@ -29,14 +28,12 @@ public class AlphaBetaPruning implements SearchAlgorithm {
         for (Move move : validMoves) {
             Board newBoard = new Board(board.getGrid());
             newBoard.makeMove(move, player);
-            // Gọi đệ quy: đến lượt đối thủ (isMax = false)
             int value = alphaBeta(newBoard, maxDepth - 1, alpha, beta, false, player);
 
             if (value > bestValue) {
                 bestValue = value;
                 bestMove = move;
             }
-            // Cập nhật Alpha cho node MAX (gốc)
             alpha = Math.max(alpha, bestValue);
         }
         return bestMove;
@@ -51,7 +48,6 @@ public class AlphaBetaPruning implements SearchAlgorithm {
         Piece currentPlayer = isMax ? player : opponent;
         List<Move> moves = board.getValidMoves(currentPlayer);
 
-        // Xử lý mất lượt (Pass): vẫn tiếp tục tìm kiếm ở độ sâu tiếp theo
         if (moves.isEmpty()) {
             return alphaBeta(board, depth - 1, alpha, beta, !isMax, player);
         }
@@ -65,8 +61,7 @@ public class AlphaBetaPruning implements SearchAlgorithm {
                 int eval = alphaBeta(newBoard, depth - 1, alpha, beta, false, player);
                 maxEval = Math.max(maxEval, eval);
                 alpha = Math.max(alpha, eval);
-                
-                // Cắt tỉa Beta
+
                 if (beta <= alpha) break; 
             }
             return maxEval;
@@ -79,8 +74,7 @@ public class AlphaBetaPruning implements SearchAlgorithm {
                 int eval = alphaBeta(newBoard, depth - 1, alpha, beta, true, player);
                 minEval = Math.min(minEval, eval);
                 beta = Math.min(beta, eval);
-                
-                // Cắt tỉa Alpha
+
                 if (beta <= alpha) break;
             }
             return minEval;

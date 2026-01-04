@@ -4,14 +4,11 @@ public class Move {
     private int row;
     private int col;
 
-    // SỬA QUAN TRỌNG: Đổi thứ tự tham số thành (row, col)
-    // Để khớp với cách gọi new Move(r, c) bên Board.java
     public Move(int row, int col) {
         this.row = row;
         this.col = col;
     }
 
-    // Constructor rỗng bắt buộc cho Jackson (khi nhận JSON từ API)
     public Move() {
     }
 

@@ -18,14 +18,11 @@ public class ReversiGame {
 
     public ReversiGame() {
         this.board = new Board();
-        //cấu hình black đi trước
         this.currentPlayer = Piece.BLACK;
         this.ai = new AlphaBetaPruning();
     }
 
-    // 1. Chỉ xử lý nước đi của người chơi (Human)
     public void play(Move playerMove) {
-        // Nếu hiện tại đang là lượt của AI, từ chối lệnh đánh của người chơi
         if (isAiTurn(currentPlayer)) {
             System.out.println("Lỗi: Đây là lượt của AI!");
             return;
@@ -57,7 +54,6 @@ public class ReversiGame {
     }
 
     private void checkPassTurn() {
-        // Nếu game chưa kết thúc mà người hiện tại không có nước đi -> Mất lượt -> Đổi lại
         if (!board.isGameOver() && board.getValidMoves(currentPlayer).isEmpty()) {
             System.out.println(currentPlayer + " không có nước đi. Mất lượt (Pass)!");
             switchTurn();

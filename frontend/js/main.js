@@ -10,7 +10,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let currentBoardState = [];
 
-    // Khởi tạo
     function initBoard() {
         boardElement.innerHTML = "";
         currentBoardState = [];
@@ -40,38 +39,29 @@ document.addEventListener("DOMContentLoaded", () => {
         const newState = await API.makeMove(row, col);
 
         if (newState) {
-            // Cập nhật UI cho nước đi của người chơi
             setTimeout(() => {
                 updateUI(newState);
             }, 300);
 
-            // [SỬA ĐỔI] Thay vì setTimeout gọi 1 lần, ta dùng hàm đệ quy xử lý chuỗi lượt AI
             if (!newState.gameOver && newState.isAiTurn) {
-                // Gọi hàm xử lý lượt AI (chờ 1.3s để người chơi kịp nhìn nước đi vừa đánh)
                 setTimeout(() => processAiTurn(), 1300);
-            } 
-            // Lưu ý: Không cần 'else' unlock ở đây nữa vì updateUI đã lo việc đó
+            }
         } else {
             boardElement.classList.remove("disabled");
             statusElement.textContent = "Invalid move!";
         }
     }
     async function processAiTurn() {
-        // Gọi API để AI đánh
         const aiState = await API.triggerAiMove();
 
         if (aiState) {
             updateUI(aiState);
 
-            // [QUAN TRỌNG] Kiểm tra xem sau khi AI đánh, có vẫn là lượt AI không?
-            // Trường hợp này xảy ra khi người chơi bị Pass (không có nước đi)
             if (!aiState.gameOver && aiState.isAiTurn) {
-                
-                // Cập nhật thông báo cho người dùng biết họ bị mất lượt
+
                 statusElement.textContent = "You have no moves! AI plays again...";
                 statusElement.style.color = "#c0392b";
 
-                // Gọi đệ quy để AI đánh tiếp sau 1.5s
                 setTimeout(() => {
                     processAiTurn();
                 }, 1500);
@@ -85,7 +75,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const newGrid = gameState.board;
         const cells = document.querySelectorAll(".cell");
 
-        // --- PHA 1: CHỈ ĐẶT QUÂN MỚI (Placing) ---
         cells.forEach(cell => {
             const r = parseInt(cell.dataset.row);
             const c = parseInt(cell.dataset.col);
@@ -93,14 +82,12 @@ document.addEventListener("DOMContentLoaded", () => {
             const oldType = currentBoardState[r] ? currentBoardState[r][c] : "EMPTY";
             const newType = newGrid[r][c];
 
-            // Nếu ô trước đây trống và giờ có quân -> Đây là quân mới đặt
             if (oldType === "EMPTY" && newType !== "EMPTY") {
                 cell.innerHTML = "";
                 const piece = document.createElement("div");
                 piece.classList.add("piece", newType.toLowerCase(), "placing");
                 cell.appendChild(piece);
             }
-            // Nếu ô này cần lật -> Giữ nguyên màu cũ (chưa lật vội)
             else if (oldType !== "EMPTY" && oldType !== newType) {
                 if (cell.firstChild) {
                     cell.firstChild.className = `piece ${oldType.toLowerCase()}`;
@@ -108,8 +95,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
-        // --- PHA 2: LẬT QUÂN (Flipping) ---
-        // Đợi 500ms sau khi đặt quân mới bắt đầu lật
         setTimeout(() => {
             cells.forEach(cell => {
                 const r = parseInt(cell.dataset.row);
@@ -118,7 +103,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 const oldType = currentBoardState[r] ? currentBoardState[r][c] : "EMPTY";
                 const newType = newGrid[r][c];
 
-                // Tìm các quân cần lật và thực hiện hiệu ứng
                 if (oldType !== "EMPTY" && oldType !== newType) {
                     cell.innerHTML = "";
                     const piece = document.createElement("div");
@@ -127,12 +111,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             });
 
-            // Hoàn tất cập nhật
             currentBoardState = JSON.parse(JSON.stringify(newGrid));
 
-            // [SỬA LỖI QUAN TRỌNG]
-            // Chỉ mở khóa bàn cờ khi KHÔNG phải lượt AI và game chưa kết thúc.
-            // Nếu là lượt AI, bàn cờ phải tiếp tục bị khóa (class 'disabled')
             if (!gameState.isAiTurn && !gameState.gameOver) {
                 boardElement.classList.remove("disabled");
             }
@@ -153,23 +133,19 @@ document.addEventListener("DOMContentLoaded", () => {
         const currentPlayer = gameState.currentPlayer;
         playerIndicator.className = `piece ${currentPlayer.toLowerCase()}`;
 
-        // Cập nhật thông báo trạng thái
         if (gameState.gameOver) {
             statusElement.textContent = `Game Over! Winner: ${gameState.winner}`;
         } else if (gameState.isAiTurn) {
-            statusElement.textContent = "AI is thinking..."; // Thông báo AI đang nghĩ
+            statusElement.textContent = "AI is thinking...";
             statusElement.style.color = "#e67e22";
         } else {
             statusElement.textContent = "Your Turn";
             statusElement.style.color = "#2c3e50";
         }
 
-        // Xóa class valid-move cũ
         const cells = document.querySelectorAll(".cell");
         cells.forEach(c => c.classList.remove("valid-move"));
 
-        // [SỬA LỖI HIỂN THỊ]
-        // Chỉ hiển thị gợi ý (chấm vàng) nếu KHÔNG phải lượt AI và game chưa kết thúc
         if (gameState.validMoves && !gameState.isAiTurn && !gameState.gameOver) {
             gameState.validMoves.forEach(move => {
                 const index = move.row * 8 + move.col;
@@ -194,7 +170,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if(newState) {
             currentBoardState = JSON.parse(JSON.stringify(newState.board));
-            // Vẽ ngay lập tức (không hiệu ứng) cho New Game
             const cells = document.querySelectorAll(".cell");
             cells.forEach(cell => {
                 cell.innerHTML = "";

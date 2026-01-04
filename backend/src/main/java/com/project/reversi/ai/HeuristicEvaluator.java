@@ -4,7 +4,7 @@ import com.project.reversi.models.Board;
 import com.project.reversi.models.Piece;
 
 public class HeuristicEvaluator {
-    // Bảng trọng số vị trí (Góc = 100, Cạnh góc X = -20...)
+
     private static final int[][] POSITION_WEIGHTS = {
             {100, -20, 10, 5, 5, 10, -20, 100},
             {-20, -50, -2, -2, -2, -2, -50, -20},
@@ -15,13 +15,11 @@ public class HeuristicEvaluator {
             {-20, -50, -2, -2, -2, -2, -50, -20},
             {100, -20, 10, 5, 5, 10, -20, 100}
     };
-    
-    // kiểm tra các hướng xung quanh
+
     private static final int[] DR = {-1, -1, -1, 0, 0, 1, 1, 1};
     private static final int[] DC = {-1, 0, 1, -1, 1, -1, 0, 1};
 
     public int evaluate(Board board, Piece player) {
-        // Tính điểm theo các tiêu chí khác nhau
         int positionScore = evalPosition(board, player);
         int mobilityScore = evalMobility(board, player);
         int frontierScore = evalFrontier(board, player);
@@ -31,31 +29,27 @@ public class HeuristicEvaluator {
         int wPos, wMob, wFront, wDisc, wParity;
 
         if (totalPieces <= 20) {
-            // Khai cuộc: Tập trung vị trí & cơ động, hạn chế ăn quân
             wPos = 10;
             wMob = 5;
             wFront = 2;
-            wDisc = -2; // Âm để khuyến khích ít quân ("Evaporation Strategy")
+            wDisc = -2;
             wParity = 0;
         } else if (totalPieces <= 45) {
-            // Trung cuộc: Cân bằng, chú trọng cấu trúc biên
             wPos = 8;
             wMob = 5;
             wFront = 4;
             wDisc = 2;
-            wParity = 2; // Bắt đầu để ý chẵn lẻ một chút
+            wParity = 2;
 
         } else {
-            // Tàn cuộc: Ăn quân là tất cả
             wPos = 2;
             wMob = 1;
             wFront = 1;
-            wDisc = 20; // Đẩy lên cực cao để AI tham lam nhất có thể
+            wDisc = 20;
             wParity = 10;
 
         }
 
-        // 4. Tổng hợp
         return (wPos * positionScore)
                 + (wMob * mobilityScore)
                 + (wFront * frontierScore)
@@ -76,8 +70,7 @@ public class HeuristicEvaluator {
             }
         }
         return score;
-    }  
-    // Tính chênh lệch số lượng nước đi (Mobility)
+    }
     private int evalMobility(Board board, Piece player) {
         int myMoves = board.getValidMoves(player).size();
         Piece opponent = (player == Piece.BLACK) ? Piece.WHITE : Piece.BLACK;
@@ -88,8 +81,7 @@ public class HeuristicEvaluator {
         }
         return 0;
     }
-    // Tính điểm quân biên
-    // Quân biên là quân nằm cạnh ô trống -> Dễ bị lật -> Càng ít càng tốt
+
     private int evalFrontier(Board board, Piece player) {
         int myFrontier = 0;
         int oppFrontier = 0;
@@ -129,7 +121,6 @@ public class HeuristicEvaluator {
         }
         return 0;
     }
-    // 5. Chiến lược Chẵn Lẻ (Parity Strategy)
 
     private int evalParity(Board board) {
         int[][] quadrants = {

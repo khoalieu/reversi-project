@@ -45,8 +45,8 @@ public class Minimax implements SearchAlgorithm {
             return evaluator.evaluate(board, aiPlayer);
         }
 
-        Piece opponent = (aiPlayer == Piece.BLACK) ? Piece.WHITE : Piece.BLACK;
-        Piece currentPlayer = isMax ? aiPlayer : opponent;
+            Piece opponent = (aiPlayer == Piece.BLACK) ? Piece.WHITE : Piece.BLACK;
+            Piece currentPlayer = isMax ? aiPlayer : opponent;
 
         List<Move> validMoves = board.getValidMoves(currentPlayer);
 

@@ -1,8 +1,7 @@
-// js/api.js
-const API_BASE_URL = "http://localhost:7070"; // Cổng mặc định của Javalin
+
+const API_BASE_URL = "http://localhost:7070";
 
 const API = {
-    // Lấy trạng thái game hiện tại
     async getGameState() {
         try {
             const response = await fetch(`${API_BASE_URL}/gameState`);
@@ -14,7 +13,6 @@ const API = {
         }
     },
 
-    // Gửi nước đi của người chơi
     async makeMove(row, col) {
         try {
             const response = await fetch(`${API_BASE_URL}/makeMove`, {
@@ -29,7 +27,7 @@ const API = {
                 const errorMsg = await response.text();
                 throw new Error(errorMsg);
             }
-            return await response.json(); // Trả về bàn cờ mới
+            return await response.json();
         } catch (error) {
             console.error("Error making move:", error);
             alert("Nước đi không hợp lệ hoặc lỗi server!");
@@ -37,7 +35,6 @@ const API = {
         }
     },
 
-    // Reset game mới
     async newGame() {
         try {
             const response = await fetch(`${API_BASE_URL}/newGame`, {
