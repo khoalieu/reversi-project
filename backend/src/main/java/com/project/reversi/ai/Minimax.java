@@ -76,4 +76,7 @@ public class Minimax implements SearchAlgorithm {
             return minEval;
         }
     }
+    public void setMaxDepth(int maxDepth) {
+        this.maxDepth = maxDepth;
+    }
 }

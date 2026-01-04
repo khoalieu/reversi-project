@@ -86,4 +86,7 @@ public class AlphaBetaPruning implements SearchAlgorithm {
             return minEval;
         }
     }
+    public void setMaxDepth(int depth) {
+        this.maxDepth = depth;
+    }
 }
